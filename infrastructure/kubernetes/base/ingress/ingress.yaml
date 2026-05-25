@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+
+metadata:
+  name: feedback-ingress
+  namespace: feedback-app
+
+spec:
+  ingressClassName: nginx
+
+  rules:
+
+  - host: vote.local
+
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+
+        backend:
+          service:
+            name: vote-app
+            port:
+              number: 3000
+
+  - host: result.local
+
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+
+        backend:
+          service:
+            name: result-app
+            port:
+              number: 4000

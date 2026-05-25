@@ -1,0 +1,53 @@
+services:
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: feedbackdb
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  vote-app:
+    build: ../../apps/vote-app
+    container_name: vote-app
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      - redis
+
+  worker:
+    build: ../../apps/worker
+    container_name: worker
+
+    depends_on:
+      - redis
+      - postgres
+
+  result-app:
+    build: ../../apps/result-app
+    container_name: result-app
+
+    ports:
+      - "4000:4000"
+
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

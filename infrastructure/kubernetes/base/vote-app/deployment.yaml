@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: vote-app
+  namespace: feedback-app
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: vote-app
+
+  template:
+    metadata:
+      labels:
+        app: vote-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+    spec:
+      containers:
+      - name: vote-app
+        image: hamzabaker/docker-vote-app:v2
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "300m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 3000
+        env:
+        - name: REDIS_HOST
+          value: redis
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Feedback Results</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .rating {
+      font-weight: bold;
+      color: #007bff;
+    }
+
+    .comment {
+      margin-top: 10px;
+      color: #444;
+    }
+
+    .date {
+      margin-top: 10px;
+      font-size: 12px;
+      color: gray;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>📊 Customer Feedback Dashboard</h1>
+
+  <% feedbacks.forEach(feedback => { %>
+
+    <div class="card">
+
+      <div class="rating">
+        Rating: <%= feedback.rating %>
+      </div>
+
+      <div class="comment">
+        <%= feedback.comment %>
+      </div>
+
+      <div class="date">
+        <%= feedback.created_at %>
+      </div>
+
+    </div>
+
+  <% }) %>
+
+</body>
+</html>
