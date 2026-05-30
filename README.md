@@ -41,3 +41,8 @@ The platform allows users to submit feedback through a web interface, temporaril
  +----------------+
  |   PostgreSQL   |
  +----------------+
+
+
+
+ <img width="958" height="534" alt="image" src="https://github.com/user-attachments/assets/4571c816-0088-43ed-8fb1-7a81882a519c" />
+
