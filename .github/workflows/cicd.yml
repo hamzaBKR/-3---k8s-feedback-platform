@@ -1,0 +1,103 @@
+name: CI-CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  build-and-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Set up Docker Buildx for better caching
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      # Build all images with caching
+      - name: Build and Push Vote App
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/vote-app
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/docker-vote-app:${{ github.sha }},${{ secrets.DOCKER_USERNAME }}/docker-vote-app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan Vote App
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKER_USERNAME }}/docker-vote-app:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results-vote.sarif'
+
+      - name: Build and Push Result App
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/result-app
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/docker-result-app:${{ github.sha }},${{ secrets.DOCKER_USERNAME }}/docker-result-app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan Result App
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKER_USERNAME }}/docker-result-app:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results-result.sarif'
+
+      - name: Build and Push Worker
+        uses: docker/build-push-action@v5
+        with:
+          context: ./apps/worker
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/docker-worker:${{ github.sha }},${{ secrets.DOCKER_USERNAME }}/docker-worker:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan Worker
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKER_USERNAME }}/docker-worker:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results-worker.sarif'
+
+      # Upload Trivy results to GitHub Security tab
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .
+          category: trivy
+
+      # Install and validate
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: 'latest'
+
+      - name: Validate manifests
+        run: |
+          kubectl kustomize infrastructure/kubernetes/base
+
+      # Deploy (requires KUBECONFIG secret)
+      - name: Deploy to Kubernetes
+        if: github.ref == 'refs/heads/main'
+        run: |
+          kubectl apply -k infrastructure/kubernetes/base
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}

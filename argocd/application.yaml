@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: feedback-app
+  namespace: argocd
+
+spec:
+
+  project: default
+
+  source:
+    repoURL: https://github.com/hamzaBKR/-3---k8s-feedback-platform.git
+    targetRevision: main
+    path: infrastructure/kubernetes/base
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: feedback-app
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
