@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: vote-app
-        image: hamzabaker/docker-vote-app:v2
+        image: hamzabaker/docker-vote-app:v4
         imagePullPolicy: Always
         resources:
           requests:
