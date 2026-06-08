@@ -1,6 +1,18 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
+
+images:
+    - name: hamzabaker/docker-vote-app
+      newTag: v4
+
+    - name: hamzabaker/docker-result-app
+      newTag: v4
+
+    - name: hamzabaker/docker-worker
+      newTag: v3
+
+
 resources:
   - namespace.yaml
 
@@ -9,6 +21,7 @@ resources:
   - secret/postgres-secret.yaml
 
   - redis/deployment.yaml
+
   - redis/service.yaml
 
   - postgres/pv.yaml

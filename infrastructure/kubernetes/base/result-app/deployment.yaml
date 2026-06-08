@@ -22,7 +22,7 @@ spec:
       containers:
       - name: result-app
 
-        image: hamzabaker/docker-result-app:v4
+        image: hamzabaker/docker-result-app
 
         imagePullPolicy: Always
 

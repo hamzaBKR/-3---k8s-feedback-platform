@@ -22,7 +22,7 @@ spec:
       containers:
       - name: worker
 
-        image: hamzabaker/docker-worker:v3
+        image: hamzabaker/docker-worker
 
         imagePullPolicy: Always
         resources:

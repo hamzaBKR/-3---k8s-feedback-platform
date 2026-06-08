@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+    paths-ignore:
+      - 'infrastructure/kubernetes/base/kustomization.yaml'
+
+permissions:
+  contents: write
+  security-events: write
+
 
 jobs:
 
@@ -84,20 +88,62 @@ jobs:
           sarif_file: .
           category: trivy
 
-      # Install and validate
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: 'latest'
 
-      - name: Validate manifests
-        run: |
-          kubectl kustomize infrastructure/kubernetes/base
-
-      # Deploy (requires KUBECONFIG secret)
-      - name: Deploy to Kubernetes
+      - name: Update image tags
         if: github.ref == 'refs/heads/main'
         run: |
-          kubectl apply -k infrastructure/kubernetes/base
-        env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          sed -i "/docker-vote-app/{n;s/newTag:.*/newTag: ${GITHUB_SHA}/;}" infrastructure/kubernetes/base/kustomization.yaml
+
+          sed -i "/docker-result-app/{n;s/newTag:.*/newTag: ${GITHUB_SHA}/;}" infrastructure/kubernetes/base/kustomization.yaml
+
+          sed -i "/docker-worker/{n;s/newTag:.*/newTag: ${GITHUB_SHA}/;}" infrastructure/kubernetes/base/kustomization.yaml
+
+      - name: Commit updated manifests
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add infrastructure/kubernetes/base/kustomization.yaml
+
+          git diff --staged --quiet || git commit -m "Update image tags ${GITHUB_SHA}"
+
+          git push
+
+
+      - name: Generate build report
+        run: |
+          echo "Commit: ${GITHUB_SHA}" > deployment-report.txt
+          echo "Vote App: ${{ secrets.DOCKER_USERNAME }}/docker-vote-app:${GITHUB_SHA}" >> deployment-report.txt
+          echo "Result App: ${{ secrets.DOCKER_USERNAME }}/docker-result-app:${GITHUB_SHA}" >> deployment-report.txt
+          echo "Worker: ${{ secrets.DOCKER_USERNAME }}/docker-worker:${GITHUB_SHA}" >> deployment-report.txt
+
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-report
+          path: deployment-report.txt
+
+
+      - name: Update image tags
+        if: github.ref == 'refs/heads/main'
+        run: |
+            sed -i "/docker-vote-app/{n;s/newTag:.*/newTag: ${GITHUB_SHA}/;}" infrastructure/kubernetes/base/kustomization.yaml
+
+            sed -i "/docker-result-app/{n;s/newTag:.*/newTag: ${GITHUB_SHA}/;}" infrastructure/kubernetes/base/kustomization.yaml
+
+            sed -i "/docker-worker/{n;s/newTag:.*/newTag: ${GITHUB_SHA}/;}" infrastructure/kubernetes/base/kustomization.yaml
+
+
+      - name: Commit updated manifests
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add infrastructure/kubernetes/base/kustomization.yaml
+
+          git diff --staged --quiet || \
+          git commit -m "Update images to ${GITHUB_SHA}"
+
+          git push
