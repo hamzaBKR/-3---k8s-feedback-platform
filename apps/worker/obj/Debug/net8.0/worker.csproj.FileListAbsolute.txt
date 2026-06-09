@@ -22,3 +22,4 @@
 /home/hamza/k8s-voting-app/apps/worker/obj/Debug/net8.0/worker.pdb
 /home/hamza/k8s-voting-app/apps/worker/obj/Debug/net8.0/worker.genruntimeconfig.cache
 /home/hamza/k8s-voting-app/apps/worker/obj/Debug/net8.0/ref/worker.dll
+/home/hamza/k8s-voting-app/apps/worker/obj/Debug/net8.0/worker.sourcelink.json

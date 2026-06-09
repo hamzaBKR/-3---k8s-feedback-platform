@@ -22,8 +22,8 @@ var postgresHost =
     Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "postgres";
 
 
-var postgresHost =
-    Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "postgres";
+
+
 
 var postgresPassword =
     Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? "postme";
@@ -91,6 +91,6 @@ while (true)
 */
 public class Feedback
 {
-    public string rating { get; set; }
-    public string comment { get; set; }
+    public string? rating { get; set; }
+    public string? comment { get; set; }
 }
