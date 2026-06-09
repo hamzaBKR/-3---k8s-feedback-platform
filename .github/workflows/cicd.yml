@@ -81,12 +81,23 @@ jobs:
           format: 'sarif'
           output: 'trivy-results-worker.sarif'
 
-      # Upload Trivy results to GitHub Security tab
-      - name: Upload Trivy results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Upload Vote SARIF
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: .
-          category: trivy
+          sarif_file: trivy-results-vote.sarif
+          category: vote-app
+
+      - name: Upload Result SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results-result.sarif
+          category: result-app
+
+      - name: Upload Worker SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results-worker.sarif
+          category: worker
 
 
       - name: Update image tags
