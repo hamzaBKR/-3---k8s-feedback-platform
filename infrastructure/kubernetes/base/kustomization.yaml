@@ -4,13 +4,13 @@ kind: Kustomization
 
 images:
     - name: hamzabaker/docker-vote-app
-      newTag: v4
+      newTag: 65f1ab92637cc9a4dc15be32666d1348d0096e27
 
     - name: hamzabaker/docker-result-app
-      newTag: v4
+      newTag: 65f1ab92637cc9a4dc15be32666d1348d0096e27
 
     - name: hamzabaker/docker-worker
-      newTag: v3
+      newTag: 65f1ab92637cc9a4dc15be32666d1348d0096e27
 
 
 resources:
